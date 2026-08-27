@@ -1,0 +1,33 @@
+# Update example data when convert_output.R or variable-name resources change
+name: update-example-data
+on:
+  
+  workflow_dispatch:
+jobs:
+  update-example-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+
+      - name: Update Assessment Report Citations
+        run: Rscript data-raw/DATASET.R
+
+      - name: Commit and push updated example data
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add inst/bib/nmfs_sar.bib
+          git diff --cached --quiet || git commit -m "chore: update stock assessment report citations from SIS (triggered by $(git log -1 --pretty=format:'%h %s' HEAD)) [skip ci]"
+          git push
