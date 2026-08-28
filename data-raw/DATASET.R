@@ -10,8 +10,9 @@ install.packages("jsonlite")
 # default is an example API call
 json_to_bib <- function(API = "https://jsonplaceholder.typicode.com/posts") {
   metadata <- httr::GET(API)
+  # could add "query = " to GET and call since previous months and set to append or just remake every month?
   # extract json metadata
-  sis_df <- jsonlite::fromJSON(rawToChar(sis_metadata$content))
+  sis_df <- jsonlite::fromJSON(rawToChar(metadata$content))
   # create citation format
   # create keys list to verify each are unique
   all_keys <- c()
