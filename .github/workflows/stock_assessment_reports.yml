@@ -1,7 +1,9 @@
-# Update example data when convert_output.R or variable-name resources change
-name: update-example-data
+# Update stock assessment report citations
+name: update-sar-citations
 on:
-  
+  schedule:
+    # Runs at 00:00 UTC on the 1st day of every month
+    - cron: '0 0 1 * *'
   workflow_dispatch:
 jobs:
   update-example-data:
